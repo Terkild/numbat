@@ -191,7 +191,9 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
             self$allele_post = self$allele_post %>% relevel_chrom()
             self$bulk_clones = self$bulk_clones %>% relevel_chrom()
 
-            self$P = read_file(inputfile=glue('{out_dir}/geno_{i}'), filetype="auto", header = TRUE) %>% tibble::column_to_rownames('cell') %>% as.matrix
+            self$P = read_file(inputfile=glue('{out_dir}/geno_{i}'), filetype="auto", header = TRUE)
+            if('cell' %in% colnames(self$P)) self$P <- self$P %>% tibble::column_to_rownames('cell') %>% as.matrix()
+
             self$treeML = read_file(inputfile=glue('{out_dir}/treeML_{i}'), filetype="auto")
             self$mut_graph = read_file(inputfile=glue('{out_dir}/mut_graph_{i}'), filetype="auto")
             self$gtree = read_file(inputfile=glue('{out_dir}/tree_final_{i}'), filetype="auto")

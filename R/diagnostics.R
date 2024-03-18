@@ -346,7 +346,15 @@ check_rds_works = function(input) {
 }
 
 
+#' Reads numbat output files
+#'
+#' @param inputfile Path to input file
+#' @param expected_colnames Vector of colnames to check output against
+#' @param filetype File type to load (.rds, .tsv and .tsv.gz is supported). If filetype="auto", filetype will be determined by first looking for ".rds" file and then ".tsv" formats (Note: if filetype="auto", the inputfile should be given without a filename suffix).
+#'
+#' @return loads file content in appropriate format
 #' @keywords internal
+#' @export
 read_file = function(inputfile, expected_colnames = NULL, filetype="tsv", ...) {
 
     # to better support save_df_as_rds we allow read_file to auto detect file type (giving priority to .rds files)

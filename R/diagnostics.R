@@ -62,30 +62,30 @@ check_allele_df = function(df) {
     expected_colnames = c('cell', 'snp_id', 'CHROM', 'POS', 'cM', 'REF', 'ALT', 'AD', 'DP', 'GT', 'gene')
 
     potential_missing_columns = return_missing_columns(df, expected_colnames)
-    
+
     if (!is.null(potential_missing_columns)) {
         stop(paste0("The allele count dataframe appears to be malformed; expected column names: ", potential_missing_columns, ". Please fix."))
     }
 
-    snps = df %>% 
-        filter(GT != '') %>% 
+    snps = df %>%
+        filter(GT != '') %>%
         group_by(snp_id) %>%
         summarise(
             n = length(unique(GT))
         )
-    
+
     if (any(snps$n > 1)) {
         msg = 'Inconsistent SNP genotypes; Are cells from two different individuals mixed together?'
         log_error(msg)
         stop(msg)
     }
-    
-    # check chrom prefix 
+
+    # check chrom prefix
     if (any(str_detect(df$CHROM[1], '^chr'))) {
         df = df %>% mutate(CHROM = str_remove(CHROM, 'chr'))
-    } 
+    }
 
-    df = df %>% 
+    df = df %>%
         filter(CHROM %in% 1:22) %>%
         mutate(CHROM = factor(CHROM, 1:22))
 
@@ -94,9 +94,9 @@ check_allele_df = function(df) {
 }
 
 #' Annotate genes on allele dataframe
-#' @param df dataframe Allele count dataframe 
+#' @param df dataframe Allele count dataframe
 #' @param gtf dataframe Gene gtf
-#' @return dataframe Allele dataframe with gene column 
+#' @return dataframe Allele dataframe with gene column
 #' @export
 annotate_genes = function(df, gtf) {
 
@@ -133,7 +133,7 @@ annotate_genes = function(df, gtf) {
             hits %>% select(snp_id, gene),
             by = c('snp_id')
         )
-    
+
     df = df %>% select(-any_of(c('gene', 'gene_start', 'gene_end'))) %>%
         left_join(snps, by = c('snp_id', 'CHROM', 'POS'))
 
@@ -155,7 +155,7 @@ check_exp_ref = function(lambdas_ref) {
         log_error(msg)
         stop(msg)
     }
-    
+
     # check if all entries in the reference profile are integers
     if (all(lambdas_ref == as.integer(lambdas_ref))) {
         msg = "The reference expression matrix 'lambdas_ref' should be normalized gene expression magnitudes. Please use aggregate_counts() function to prepare the reference profile from raw counts."
@@ -228,11 +228,11 @@ check_exp_noise = function(bulk) {
 #' @return dataframe Clonal LOH segment dataframe
 #' @keywords internal
 check_segs_loh = function(segs_loh) {
-    
+
         if (is.null(segs_loh)) {
             return(NULL)
         }
-    
+
         if (!all(c('CHROM', 'seg', 'seg_start', 'seg_end') %in% colnames(segs_loh))) {
             stop('The clonal LOH segment dataframe appears to be malformed. Please fix.')
         }
@@ -241,11 +241,11 @@ check_segs_loh = function(segs_loh) {
             segs_loh = segs_loh %>% mutate(seg = paste0(CHROM, '_', seg))
         }
 
-        segs_loh = segs_loh %>% 
+        segs_loh = segs_loh %>%
             mutate(loh = TRUE) %>%
             relevel_chrom() %>%
             arrange(CHROM, seg_start)
-    
+
         return(segs_loh)
 
 }
@@ -264,7 +264,7 @@ check_segs_fix = function(segs_consensus_fix) {
         stop('The consensus segment dataframe appears to be malformed. Please fix.')
     }
 
-    segs_consensus_fix = segs_consensus_fix %>% 
+    segs_consensus_fix = segs_consensus_fix %>%
         relevel_chrom() %>%
         arrange(CHROM, seg_start)
 
@@ -288,7 +288,7 @@ check_segs_fix = function(segs_consensus_fix) {
         as.data.frame()
 
     return(segs_consensus_fix)
-    
+
 }
 
 #' Check the format of a given file
@@ -315,7 +315,7 @@ return_missing_columns = function(file, expected_colnames = NULL) {
 
 #' Relevel chromosome column
 #' @param df dataframe Dataframe with chromosome column
-#' @keywords internal 
+#' @keywords internal
 relevel_chrom = function(df) {
     if (!is.null(df)) {
         df = df %>% mutate(CHROM = factor(CHROM, 1:22))
@@ -348,10 +348,26 @@ check_rds_works = function(input) {
 
 #' @keywords internal
 read_file = function(inputfile, expected_colnames = NULL, filetype="tsv", ...) {
+
+    # to better support save_df_as_rds we allow read_file to auto detect file type (giving priority to .rds files)
+    if(filetype == "auto"){
+        if(file.exists(paste0(inputfile, '.rds'))){
+            filetype <- "rds"
+            inputfile <- paste0(inputfile, ".rds")
+        } else if(file.exists(paste0(inputfile, '.tsv.gz'))){
+            filetype <- "tsv"
+            inputfile <- paste0(inputfile, ".tsv.gz")
+        } else if(file.exists(paste0(inputfile, '.tsv'))){
+            filetype <- "tsv"
+            inputfile <- paste0(inputfile, ".tsv")
+        }
+    }
+
+
     if (filetype == "tsv") {
         file = check_fread_works(inputfile, ...)
     } else if (filetype == "rds") {
-        file = check_rds_works(inputfile)      
+        file = check_rds_works(inputfile)
     } else {
         stop("The parameter 'filetype' must be either 'tsv' or 'rds'. Please fix.")
     }
@@ -368,7 +384,7 @@ read_hc_rds = function(inputfile) {
     file = check_rds_works(inputfile)
     if (!is.list(file)) {
         stop(paste0("The file: ", inputfile, " is malformed; should be a list. Please fix."))
-    }        
+    }
     hc_colnames = c("merge", "height", "order", "labels", "method", "call", "dist.method")
     '%ni%' <- Negate('%in%')
     if (any(hc_colnames %ni% names(file))) {
@@ -380,5 +396,5 @@ read_hc_rds = function(inputfile) {
 }
 
 
-            
+
 

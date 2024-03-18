@@ -8,7 +8,7 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
 
     #' @field label character Sample name
     label = 'sample',
-    
+
     #' @field gtf dataframe Transcript annotation
     gtf = NULL,
 
@@ -74,7 +74,7 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
     #' @param ... additional parameters passed to plot_phylo_heatmap()
     plot_phylo_heatmap = function(...) {
 
-        p = plot_phylo_heatmap(  
+        p = plot_phylo_heatmap(
             gtree = self$gtree,
             joint_post = self$joint_post,
             segs_consensus = self$segs_consensus,
@@ -93,7 +93,7 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
         if (is.null(self$gexp_roll_wide)) {
 
             self$gexp_roll_wide = read_file(inputfile=glue('{out_dir}/gexp_roll_wide.tsv.gz'), filetype="tsv")
-            
+
             if (!is.null(self$gexp_roll_wide)) {
                 if ('V1' %in% colnames(self$gexp_roll_wide)) {
                     self$gexp_roll_wide = self$gexp_roll_wide %>% rename(cell = V1)
@@ -101,7 +101,7 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
                 self$gexp_roll_wide = self$gexp_roll_wide %>% tibble::column_to_rownames('cell')
             }
         }
-        
+
         p = plot_exp_roll(
             gexp_roll_wide = self$gexp_roll_wide,
             hc = self$hc,
@@ -112,7 +112,7 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
         )
         return(p)
     },
-    
+
     #' @description Plot the mutation history of the tumor
     #' @param ... additional parameters passed to plot_mut_history()
     plot_mut_history = function(...) {
@@ -155,11 +155,11 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
         return(p)
     },
 
-    #' @description Re-define subclones on the phylogeny. 
+    #' @description Re-define subclones on the phylogeny.
     #' @param max_cost numeric Likelihood threshold to collapse internal branches
     #' @param n_cut integer Number of cuts on the phylogeny to define subclones
     cutree = function(max_cost = 0, n_cut = 0) {
-        
+
         self$gtree = get_gtree(self$treeML, self$P, max_cost = max_cost, n_cut = n_cut)
         self$mut_graph = scistreer::get_mut_graph(self$gtree)
         self$clone_post = get_clone_post(self$gtree, self$exp_post, self$allele_post)
@@ -178,24 +178,24 @@ Numbat <- R6::R6Class("Numbat", lock_objects=FALSE,
         #  return: NULL
 
         fetch_results = function(out_dir, i = 2) {
- 
-            self$joint_post = read_file(inputfile=glue('{out_dir}/joint_post_{i}.tsv'), filetype="tsv")
-            self$exp_post = read_file(inputfile=glue('{out_dir}/exp_post_{i}.tsv'), filetype="tsv")
-            self$allele_post = read_file(inputfile=glue('{out_dir}/allele_post_{i}.tsv'), filetype="tsv")
-            self$bulk_clones = read_file(inputfile=glue('{out_dir}/bulk_clones_final.tsv.gz'), filetype="tsv")
-            self$segs_consensus = read_file(inputfile=glue('{out_dir}/segs_consensus_{i}.tsv'), filetype="tsv")
+
+            self$joint_post = read_file(inputfile=glue('{out_dir}/joint_post_{i}'), filetype="auto")
+            self$exp_post = read_file(inputfile=glue('{out_dir}/exp_post_{i}'), filetype="auto")
+            self$allele_post = read_file(inputfile=glue('{out_dir}/allele_post_{i}'), filetype="auto")
+            self$bulk_clones = read_file(inputfile=glue('{out_dir}/bulk_clones_final'), filetype="auto")
+            self$segs_consensus = read_file(inputfile=glue('{out_dir}/segs_consensus_{i}'), filetype="auto")
 
             self$segs_consensus = self$segs_consensus %>% relevel_chrom()
             self$joint_post = self$joint_post %>% relevel_chrom()
             self$exp_post = self$exp_post %>% relevel_chrom()
             self$allele_post = self$allele_post %>% relevel_chrom()
             self$bulk_clones = self$bulk_clones %>% relevel_chrom()
-            
-            self$P = read_file(inputfile=glue('{out_dir}/geno_{i}.tsv'), header = TRUE) %>% tibble::column_to_rownames('cell') %>% as.matrix
-            self$treeML = read_file(inputfile=glue('{out_dir}/treeML_{i}.rds'), filetype="rds")
-            self$mut_graph = read_file(inputfile=glue('{out_dir}/mut_graph_{i}.rds'), filetype="rds")
-            self$gtree = read_file(inputfile=glue('{out_dir}/tree_final_{i}.rds'), filetype="rds")
-            self$clone_post = read_file(inputfile=glue('{out_dir}/clone_post_{i}.tsv'), filetype="tsv")
+
+            self$P = read_file(inputfile=glue('{out_dir}/geno_{i}'), filetype="auto", header = TRUE) %>% tibble::column_to_rownames('cell') %>% as.matrix
+            self$treeML = read_file(inputfile=glue('{out_dir}/treeML_{i}'), filetype="auto")
+            self$mut_graph = read_file(inputfile=glue('{out_dir}/mut_graph_{i}'), filetype="auto")
+            self$gtree = read_file(inputfile=glue('{out_dir}/tree_final_{i}'), filetype="auto")
+            self$clone_post = read_file(inputfile=glue('{out_dir}/clone_post_{i}'), filetype="auto")
 
     })
 )

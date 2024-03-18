@@ -280,7 +280,7 @@ run_numbat = function(
         if(resume == TRUE & file.exists(glue('{out_dir}/hc.rds')) & df_exists(glue('{out_dir}/gexp_roll_wide'))){
 
           clust = list(hc=readRDS(glue('{out_dir}/hc.rds')),
-                       gexp_roll_wide=read_df(glue('{out_dir}/gexp_roll_wide')))
+                       gexp_roll_wide=read_file(glue('{out_dir}/gexp_roll_wide'), filetype="auto"))
 
         } else {
           resume <- FALSE
@@ -363,7 +363,7 @@ run_numbat = function(
                                           "min_LLR"=min_LLR,
                                           "min_overlap"=min_overlap))){
 
-            bulk_subtrees <- read_df(glue('{out_dir}/bulk_subtrees_retest_{i}'))
+            bulk_subtrees <- read_file(glue('{out_dir}/bulk_subtrees_retest_{i}'), filetype="auto")
 
             ## OBS: The segs_consensus call is repeated... can maybe be restructured to avoid this
             # find consensus CNVs again
@@ -492,7 +492,7 @@ run_numbat = function(
                                        "use_loh"=use_loh,
                                        "min_LLR"=min_LLR))){
 
-            bulk_clones <- read_df(glue('{out_dir}/bulk_clones_{i}'))
+            bulk_clones <- read_file(glue('{out_dir}/bulk_clones_{i}'), filetype="auto") %>% relevel_chrom()
 
         } else {
             resume <- FALSE
@@ -550,8 +550,7 @@ run_numbat = function(
                         params_check=list("p_multi"=p_multi,
                                           "min_LLR"=min_LLR))){
 
-            segs_consensus <- fread(glue('{out_dir}/segs_consensus_{i}.tsv'))
-            segs_consensus$CHROM <- as.factor(segs_consensus$CHROM)
+            segs_consensus <- fread(glue('{out_dir}/segs_consensus_{i}.tsv')) %>% relevel_chrom()
 
         } else {
             resume <- FALSE
@@ -576,9 +575,9 @@ run_numbat = function(
                                           "segs_loh"=segs_loh,
                                           "multi_allelic"=multi_allelic))){
 
-            exp_post <- read_df(glue('{out_dir}/exp_post_{i}'))
-            allele_post <- read_df(glue('{out_dir}/allele_post_{i}'))
-            joint_post <- read_df(glue('{out_dir}/joint_post_{i}'))
+            exp_post <- read_file(glue('{out_dir}/exp_post_{i}'), filetype="auto") %>% relevel_chrom()
+            allele_post <- read_file(glue('{out_dir}/allele_post_{i}'), filetype="auto") %>% relevel_chrom()
+            joint_post <- read_file(glue('{out_dir}/joint_post_{i}'), filetype="auto") %>% relevel_chrom()
 
         } else {
             resume <- FALSE
@@ -653,7 +652,7 @@ run_numbat = function(
         if(resume_check(resume=resume,
                         df=glue('{out_dir}/geno_{i}'))){
 
-            P <- read_df(glue('{out_dir}/geno_{i}'))
+            P <- read_file(glue('{out_dir}/geno_{i}'), filetype="auto")
 
             if('cell' %in% colnames(P)) P <- P %>% tibble::column_to_rownames('cell') %>% as.matrix()
 
@@ -678,7 +677,7 @@ run_numbat = function(
         if(resume_check(resume=resume,
                         df=glue('{out_dir}/treeUPGMA_{i}'))){
 
-            treeUPGMA <- read_df(glue('{out_dir}/treeUPGMA_{i}'))
+            treeUPGMA <- read_file(glue('{out_dir}/treeUPGMA_{i}'), filetype="auto")
 
             if(!skip_nj & !file.exists(glue('{out_dir}/treeNJ_{i}.rds'))){
                 # contruct initial tree
@@ -708,7 +707,7 @@ run_numbat = function(
             if(resume_check(resume=resume,
                             df=glue('{out_dir}/treeNJ_{i}'))){
 
-                treeNJ <- read_df(glue('{out_dir}/treeNJ_{i}'))
+                treeNJ <- read_file(glue('{out_dir}/treeNJ_{i}'), filetype="auto")
 
             } else {
                 resume <- FALSE
@@ -744,8 +743,8 @@ run_numbat = function(
                         params_check=list("eps"=eps,
                                           "max_nni"=max_nni))){
 
-            tree_list <- read_df(glue('{out_dir}/tree_list_{i}'))
-            treeML <- read_df(glue('{out_dir}/treeML_{i}'))
+            tree_list <- read_file(glue('{out_dir}/tree_list_{i}'), filetype="auto")
+            treeML <- read_file(glue('{out_dir}/treeML_{i}'), filetype="auto")
 
         } else {
             resume <- FALSE
@@ -765,8 +764,8 @@ run_numbat = function(
                         params_check=list("n_cut"=n_cut,
                                           "max_cost"=max_cost))){
 
-            gtree <- read_df(glue('{out_dir}/tree_final_{i}'))
-            G_m <- read_df(glue('{out_dir}/mut_graph_{i}'))
+            gtree <- read_file(glue('{out_dir}/tree_final_{i}'), filetype="auto")
+            G_m <- read_file(glue('{out_dir}/mut_graph_{i}'), filetype="auto")
 
         } else {
             resume <- FALSE
@@ -780,7 +779,7 @@ run_numbat = function(
         if(resume_check(resume=resume,
                         df=glue('{out_dir}/clone_post_{i}'))){
 
-            clone_post <- read_df(glue('{out_dir}/clone_post_{i}'))
+            clone_post <- read_file(glue('{out_dir}/clone_post_{i}'), filetype="auto")
 
         } else {
             resume <- FALSE
@@ -817,7 +816,7 @@ run_numbat = function(
         if(resume_check(resume=resume,
                         df=glue('{out_dir}/subtrees_{i}'))){
 
-            subtrees <- read_df(glue('{out_dir}/subtrees_{i}'))
+            subtrees <- read_file(glue('{out_dir}/subtrees_{i}'), filetype="auto")
 
         } else {
             resume <- FALSE
@@ -841,7 +840,7 @@ run_numbat = function(
         if(resume_check(resume=resume,
                         df=glue('{out_dir}/clones_{i}'))){
 
-            clones <- read_df(glue('{out_dir}/clones_{i}'))
+            clones <- read_file(glue('{out_dir}/clones_{i}'), filetype="auto")
 
         } else {
             resume <- FALSE

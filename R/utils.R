@@ -2070,19 +2070,6 @@ save_df <- function(object, path, rds=FALSE, ...){
     }
 }
 
-# helper function to read data.frames from either RDS or tsv.gz
-read_df <- function(path){
-    if(file.exists(paste0(path, '.rds'))){
-        return(readRDS(paste0(path, '.rds')))
-    } else if(file.exists(paste0(path, '.tsv.gz'))) {
-        return(fread(paste0(path, '.tsv.gz')))
-    } else if(file.exists(paste0(path, '.tsv'))){
-        return(fread(paste0(path, '.tsv')))
-    } else {
-        stop(paste0("No rds, tsv.gz or tsv files found named ", path))
-    }
-}
-
 # check if data.frame exists as either RDS or tsv.gz
 df_exists <- function(path){
     (file.exists(paste0(path, '.rds')) | file.exists(paste0(path, '.tsv.gz')) | file.exists(paste0(path, '.tsv'))) == TRUE

@@ -941,7 +941,7 @@ subtrees_equal = function(subtrees_1, subtrees_2) {
 #' @param window integer Sliding window size
 #' @param ncores integer Number of cores
 #' @param verbose logical Verbosity
-#' @keywords internal
+#' @export
 exp_hclust = function(count_mat, lambdas_ref, gtf, sc_refs = NULL, window = 101, ncores = 1, verbose = TRUE) {
 
     count_mat = check_matrix(count_mat)
@@ -983,7 +983,7 @@ exp_hclust = function(count_mat, lambdas_ref, gtf, sc_refs = NULL, window = 101,
 #' @param segs_loh dataframe Segments with clonal LOH to be excluded
 #' @param ncores integer Number of cores
 #' @return dataframe Pseudobulk profiles
-#' @keywords internal
+#' @export
 make_group_bulks = function(groups, count_mat, df_allele, lambdas_ref, gtf, min_depth = 0, nu = 1, segs_loh = NULL, ncores = NULL) {
 
     if (length(groups) == 0) {
@@ -1042,7 +1042,7 @@ make_group_bulks = function(groups, count_mat, df_allele, lambdas_ref, gtf, min_
 #' @param run_hmm logical Whether to run HMM segments or just retest
 #' @param ncores integer Number of cores
 #' @param allele_only logical Whether only use allele data to run HMM
-#' @keywords internal
+#' @export
 run_group_hmms = function(
     bulks, t = 1e-4, gamma = 20, alpha = 1e-4, min_genes = 10, nu = 1,
     common_diploid = TRUE, diploid_chroms = NULL, allele_only = FALSE, retest = TRUE, run_hmm = TRUE,
@@ -1114,7 +1114,7 @@ run_group_hmms = function(
 #' @param min_LLR numeric LLR threshold to filter CNVs
 #' @param min_overlap numeric Minimum overlap fraction to determine count two events as as overlapping
 #' @return dataframe Consensus segments
-#' @keywords internal
+#' @export
 get_segs_consensus = function(bulks, min_LLR = 5, min_overlap = 0.45, retest = TRUE) {
 
     if (!'sample' %in% colnames(bulks)) {
@@ -1864,7 +1864,7 @@ get_joint_post = function(exp_post, allele_post, segs_consensus) {
 #' @param use_loh logical Whether to use loh in the baseline
 #' @param diploid_chroms vector User-provided diploid chromosomes
 #' @return dataframe Retested pseudobulks
-#' @keywords internal
+#' @export
 retest_bulks = function(bulks, segs_consensus = NULL,
     t = 1e-5, min_genes = 10, gamma = 20, nu = 1,
     use_loh = FALSE, diploid_chroms = NULL, ncores = 1, exclude_neu = TRUE, min_LLR = 5) {
